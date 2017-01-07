@@ -1,4 +1,6 @@
 KinectShapeRecognition/obj/
 KinectShapeRecognition/bin/
+KinectShapeRecognition/bin/Debug/data/
+KinectShapeRecognition/bin/Release/data/
 *.suo
 

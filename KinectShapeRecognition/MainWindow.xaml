@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="MainWindow" Height="440" Width="646">
     <Grid>
-        <Image HorizontalAlignment="Left" Height="299" Margin="46,40,0,0" VerticalAlignment="Top" Width="399"/>
+        <Image x:Name="image" HorizontalAlignment="Left" Height="299" Margin="46,40,0,0" VerticalAlignment="Top" Width="399"/>
         <Button x:Name="StartButton" Content="Start" HorizontalAlignment="Left" Margin="523,40,0,0" VerticalAlignment="Top" Width="75" Click="StartButton_Click"/>
 
     </Grid>
