@@ -32,7 +32,8 @@ namespace KinectShapeRecognition
                 .Select(int.Parse)
                 .ToArray();
 //            DisplayDepthArrayInGreyscale(depthArray);
-            DisplayDepthArrayInColour(depthArray);
+//            DisplayDepthArrayInColour(depthArray);
+            DisplayDepthArrayInColourExplicit(depthArray);
         }
 
         private void StartButton_Click(object sender, RoutedEventArgs e)
@@ -42,38 +43,50 @@ namespace KinectShapeRecognition
         private void DisplayDepthArrayInGreyscale(int[] depthArray)
         {
             int bytesPerPixel = sizeof(short);
-            int dpiX = 96, dpiY = dpiX;
+            PixelFormat pixelFormat = PixelFormats.Gray16;
             int maxDepth = depthArray.Max();
             int maxColour = 1 << 16;
-            short[] colourArray = depthArray.Select(d => (short) ((double)d / maxDepth * maxColour)).ToArray();
+            short[] colourArray = depthArray
+                .Select(d => (short) (d == 0 ? 0 : d == -8 ? 0xffff : (double)d / maxDepth * maxColour))
+                .ToArray();
 
-            image.Source = BitmapSource.Create(
-                pixelWidth,
-                pixelHeight,
-                dpiX,
-                dpiY,
-                PixelFormats.Gray16,
-                null,
-                colourArray,
-                pixelWidth * bytesPerPixel
-                );
+            DisplayColourArray(colourArray, bytesPerPixel, pixelFormat);
         }
 
         private void DisplayDepthArrayInColour(int[] depthArray)
         {
             int bytesPerPixel = sizeof(int);
-            int dpiX = 96, dpiY = dpiX;
+            PixelFormat pixelFormat = PixelFormats.Bgr32;
+            int maxDepth = depthArray.Max();
+            int[] colourArray = depthArray
+                .Select(d => d == 0 ? 0 : d == -8 ? 0xffffff : HsvToBgr32((double)d / maxDepth * 360, 1, 1))
+                .ToArray();
+
+            DisplayColourArray(colourArray, bytesPerPixel, pixelFormat);
+        }
+
+        private void DisplayDepthArrayInColourExplicit(int[] depthArray)
+        {
+            int bytesPerPixel = sizeof(int);
+            PixelFormat pixelFormat = PixelFormats.Bgr32;
             int largePrime = 3121;
             int[] colourArray = depthArray
-                .Select(i => HsvToBgr32(i * largePrime, 1, 1))
+                .Select(d => d == 0 ? 0 : d == -8 ? 0xffffff : HsvToBgr32(d * largePrime, 1, 1))
                 .ToArray();
+
+            DisplayColourArray(colourArray, bytesPerPixel, pixelFormat);
+        }
+
+        private void DisplayColourArray(Array colourArray, int bytesPerPixel, PixelFormat pixelFormat)
+        {
+            int dpiX = 96, dpiY = dpiX;
 
             image.Source = BitmapSource.Create(
                 pixelWidth,
                 pixelHeight,
                 dpiX,
                 dpiY,
-                PixelFormats.Bgr32,
+                pixelFormat,
                 null,
                 colourArray,
                 pixelWidth * bytesPerPixel
