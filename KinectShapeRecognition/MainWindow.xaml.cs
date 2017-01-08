@@ -26,29 +26,26 @@ namespace KinectShapeRecognition
         public MainWindow()
         {
             InitializeComponent();
-            Console.WriteLine("{0:X}", HsvToBgr32(0, 1, 1));
-            Console.WriteLine("{0:X}", HsvToBgr32(180, 1, 1));
-            Console.WriteLine("{0:X}", HsvToBgr32(0, 0.5, 0.5));
-            Console.WriteLine("{0:X}", 0xFF << 16);
-            String textData = File.ReadAllText(@"data\air_pen_0.txt");
-            var depthArray = textData.Split(',').Where(s => !String.IsNullOrEmpty(s)).Select(short.Parse).ToArray();
-//            DisplayDepthArray(depthArray);
-//            DisplayDepthArray(Enumerable.Range(0, 320 * 240).Select(x => (short)x).ToArray());
-//            DisplayDepthArray(Enumerable.Repeat(17064, 320 * 240).Select(x => (short) x).ToArray());
-//            DisplayDepthArray(Enumerable.Repeat(-10000, 100).Concat(Enumerable.Repeat(0,320*240=100)).ToArr());
-            DisplayBgr(Enumerable.Range(0, 320*240).Select(i => HsvToBgr32(i, 1, 1)).ToArray());
-//            DisplayBgr(Enumerable.Range(0, 320*240).Select(i => ~(i + 16000000)).ToArray());
-//            DisplayBgr(Enumerable.Repeat(0x0000ff, 320*240).ToArray());
+            String textData = File.ReadAllText(@"data\table_pen_0.txt");
+            var depthArray = textData.Split(',')
+                .Where(s => !String.IsNullOrEmpty(s))
+                .Select(int.Parse)
+                .ToArray();
+//            DisplayDepthArrayInGreyscale(depthArray);
+            DisplayDepthArrayInColour(depthArray);
         }
 
         private void StartButton_Click(object sender, RoutedEventArgs e)
         {
         }
 
-        private void DisplayDepthArray(short[] depthArray)
+        private void DisplayDepthArrayInGreyscale(int[] depthArray)
         {
-            int bytesPerPixel = sizeof (short);
+            int bytesPerPixel = sizeof(short);
             int dpiX = 96, dpiY = dpiX;
+            int maxDepth = depthArray.Max();
+            int maxColour = 1 << 16;
+            short[] colourArray = depthArray.Select(d => (short) ((double)d / maxDepth * maxColour)).ToArray();
 
             image.Source = BitmapSource.Create(
                 pixelWidth,
@@ -57,15 +54,19 @@ namespace KinectShapeRecognition
                 dpiY,
                 PixelFormats.Gray16,
                 null,
-                depthArray,
-                pixelWidth*bytesPerPixel
+                colourArray,
+                pixelWidth * bytesPerPixel
                 );
         }
 
-        private void DisplayBgr(int[] array)
+        private void DisplayDepthArrayInColour(int[] depthArray)
         {
-            int bytesPerPixel = sizeof (int);
+            int bytesPerPixel = sizeof(int);
             int dpiX = 96, dpiY = dpiX;
+            int largePrime = 3121;
+            int[] colourArray = depthArray
+                .Select(i => HsvToBgr32(i * largePrime, 1, 1))
+                .ToArray();
 
             image.Source = BitmapSource.Create(
                 pixelWidth,
@@ -74,8 +75,8 @@ namespace KinectShapeRecognition
                 dpiY,
                 PixelFormats.Bgr32,
                 null,
-                array,
-                pixelWidth*bytesPerPixel
+                colourArray,
+                pixelWidth * bytesPerPixel
                 );
         }
 
