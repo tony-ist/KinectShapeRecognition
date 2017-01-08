@@ -31,12 +31,12 @@ namespace KinectShapeRecognition
         {
             String textData = File.ReadAllText(@"data\air_pen_0.txt");
             var depthArray = textData.Split(',').Where(s => !String.IsNullOrEmpty(s)).Select(short.Parse).ToArray();
-//            DisplayDepthArray(depthArray);
+            DisplayDepthArray(depthArray);
 //            DisplayDepthArray(Enumerable.Range(0, 320 * 240).Select(x => (short)x).ToArray());
 //            DisplayDepthArray(Enumerable.Repeat(17064, 320 * 240).Select(x => (short) x).ToArray());
 //            DisplayDepthArray(Enumerable.Repeat(-10000, 100).Concat(Enumerable.Repeat(0, 320*240 - 100)).ToArray());
 //            DisplayBgr(Enumerable.Range(0, 320*240).Select(i => HsvToBgr32(0, 0, 0)).ToArray());
-            DisplayBgr(Enumerable.Range(0, 320*240).Select(i => ~(i + 16000000)).ToArray());
+//            DisplayBgr(Enumerable.Range(0, 320*240).Select(i => ~(i + 16000000)).ToArray());
 //            DisplayBgr(Enumerable.Repeat(0x0000ff, 320*240).ToArray());
         }
 
