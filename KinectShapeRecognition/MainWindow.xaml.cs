@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.IO;
 using System.Text;
@@ -25,6 +26,9 @@ namespace KinectShapeRecognition
         public MainWindow()
         {
             InitializeComponent();
+            Console.WriteLine("{0:X}", HsvToBgr32(0, 1, 1));
+            Console.WriteLine("{0:X}", HsvToBgr32(180, 1, 1));
+            Console.WriteLine("{0:X}", HsvToBgr32(0, 0.5, 0.5));
         }
 
         private void StartButton_Click(object sender, RoutedEventArgs e)
@@ -35,8 +39,8 @@ namespace KinectShapeRecognition
 //            DisplayDepthArray(Enumerable.Range(0, 320 * 240).Select(x => (short)x).ToArray());
 //            DisplayDepthArray(Enumerable.Repeat(17064, 320 * 240).Select(x => (short) x).ToArray());
 //            DisplayDepthArray(Enumerable.Repeat(-10000, 100).Concat(Enumerable.Repeat(0, 320*240 - 100)).ToArray());
-//            DisplayBgr(Enumerable.Range(0, 320*240).Select(i => HsvToBgr32(0, 0, 0)).ToArray());
-            DisplayBgr(Enumerable.Range(0, 320*240).Select(i => ~(i + 16000000)).ToArray());
+            DisplayBgr(Enumerable.Range(0, 320*240).Select(i => HsvToBgr32(i, 0, 0)).ToArray());
+//            DisplayBgr(Enumerable.Range(0, 320*240).Select(i => ~(i + 16000000)).ToArray());
 //            DisplayBgr(Enumerable.Repeat(0x0000ff, 320*240).ToArray());
         }
 
@@ -89,6 +93,11 @@ namespace KinectShapeRecognition
             int p = Convert.ToInt32(value*(1 - saturation));
             int q = Convert.ToInt32(value*(1 - f*saturation));
             int t = Convert.ToInt32(value*(1 - (1 - f)*saturation));
+
+            Debug.Assert(v < 0x100);
+            Debug.Assert(p < 0x100);
+            Debug.Assert(q < 0x100);
+            Debug.Assert(t < 0x100);
 
             switch (hi)
             {
