@@ -29,19 +29,20 @@ namespace KinectShapeRecognition
             Console.WriteLine("{0:X}", HsvToBgr32(0, 1, 1));
             Console.WriteLine("{0:X}", HsvToBgr32(180, 1, 1));
             Console.WriteLine("{0:X}", HsvToBgr32(0, 0.5, 0.5));
-        }
-
-        private void StartButton_Click(object sender, RoutedEventArgs e)
-        {
+            Console.WriteLine("{0:X}", 0xFF << 16);
             String textData = File.ReadAllText(@"data\air_pen_0.txt");
             var depthArray = textData.Split(',').Where(s => !String.IsNullOrEmpty(s)).Select(short.Parse).ToArray();
 //            DisplayDepthArray(depthArray);
 //            DisplayDepthArray(Enumerable.Range(0, 320 * 240).Select(x => (short)x).ToArray());
 //            DisplayDepthArray(Enumerable.Repeat(17064, 320 * 240).Select(x => (short) x).ToArray());
-//            DisplayDepthArray(Enumerable.Repeat(-10000, 100).Concat(Enumerable.Repeat(0, 320*240 - 100)).ToArray());
-            DisplayBgr(Enumerable.Range(0, 320*240).Select(i => HsvToBgr32(i, 0, 0)).ToArray());
+//            DisplayDepthArray(Enumerable.Repeat(-10000, 100).Concat(Enumerable.Repeat(0,320*240=100)).ToArr());
+            DisplayBgr(Enumerable.Range(0, 320*240).Select(i => HsvToBgr32(i, 1, 1)).ToArray());
 //            DisplayBgr(Enumerable.Range(0, 320*240).Select(i => ~(i + 16000000)).ToArray());
 //            DisplayBgr(Enumerable.Repeat(0x0000ff, 320*240).ToArray());
+        }
+
+        private void StartButton_Click(object sender, RoutedEventArgs e)
+        {
         }
 
         private void DisplayDepthArray(short[] depthArray)
@@ -78,11 +79,6 @@ namespace KinectShapeRecognition
                 );
         }
 
-        private void TestHsvToBgr32()
-        {
-            
-        }
-
         private static int HsvToBgr32(double hue, double saturation, double value)
         {
             int hi = Convert.ToInt32(Math.Floor(hue/60))%6;
@@ -94,39 +90,21 @@ namespace KinectShapeRecognition
             int q = Convert.ToInt32(value*(1 - f*saturation));
             int t = Convert.ToInt32(value*(1 - (1 - f)*saturation));
 
-            Debug.Assert(v < 0x100);
-            Debug.Assert(p < 0x100);
-            Debug.Assert(q < 0x100);
-            Debug.Assert(t < 0x100);
-
             switch (hi)
             {
                 case 0:
-                    return v << 16 + t << 8 + p;
+                    return (v << 16) + (t << 8) + p;
                 case 1:
-                    return q << 16 + v << 8 + p;
+                    return (q << 16) + (v << 8) + p;
                 case 2:
-                    return p << 16 + v << 8 + t;
+                    return (p << 16) + (v << 8) + t;
                 case 3:
-                    return p << 16 + q << 8 + v;
+                    return (p << 16) + (q << 8) + v;
                 case 4:
-                    return t << 16 + p << 8 + v;
+                    return (t << 16) + (p << 8) + v;
                 default:
-                    return v << 16 + p << 8 + q;
+                    return (v << 16) + (p << 8) + q;
             }
-
-//            if (hi == 0)
-//                return Color.FromArgb(255, v, t, p);
-//            else if (hi == 1)
-//                return Color.FromArgb(255, q, v, p);
-//            else if (hi == 2)
-//                return Color.FromArgb(255, p, v, t);
-//            else if (hi == 3)
-//                return Color.FromArgb(255, p, q, v);
-//            else if (hi == 4)
-//                return Color.FromArgb(255, t, p, v);
-//            else
-//                return Color.FromArgb(255, v, p, q);
         }
     }
 }
