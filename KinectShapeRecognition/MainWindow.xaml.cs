@@ -27,8 +27,10 @@ namespace KinectShapeRecognition
         private static readonly int WHITE_COLOUR = 0xFFFFFF;
 
         private KinectSensor sensor;
-        private Boolean isCapturing = false;
-        private int frameX, frameY, frameSize;
+        private bool isCapturing = false;
+        private bool isFrameEnabled;
+        private int frameSize, frameX, frameY;
+        private int minDepth, maxDepth;
 
         public MainWindow()
         {
@@ -43,9 +45,38 @@ namespace KinectShapeRecognition
                 .Where(s => !String.IsNullOrEmpty(s))
                 .Select(short.Parse)
                 .ToArray();
-            DisplayDepthArrayInGreyscale(depthArray);
-            DisplayDepthArrayInColour(depthArray);
-//            DisplayDepthArrayInColourExplicit(depthArray);
+
+            ReadFrameValues();
+
+            if (isFrameEnabled)
+            {
+                FilterDepth(depthArray);
+            }
+
+//            DisplayDepthArrayInGreyscale(depthArray);
+//            DisplayDepthArrayInColour(depthArray);
+            DisplayDepthArrayInColourExplicit(depthArray);
+        }
+
+        private void FilterDepth(short[] depthArray)
+        {
+            for (int y = frameY + 1; y < frameY + 1 + frameSize; y++)
+            {
+                for (int x = frameX + 1; x < frameX + 1 + frameSize; x++)
+                {
+                    int index = GetIndex(x, y);
+
+                    if (index < 0 || index >= depthArray.GetLength(0))
+                    {
+                        continue;
+                    }
+
+                    if (depthArray[index] < minDepth || depthArray[index] > maxDepth)
+                    {
+                        depthArray[index] = 0;
+                    }
+                }
+            }
         }
 
         private void StartButton_Click(object sender, RoutedEventArgs e)
@@ -72,8 +103,8 @@ namespace KinectShapeRecognition
                 .ToArray();
             imageFrame.CopyPixelDataTo(depthArray);
 //            DisplayDepthArrayInColourExplicit(depthArray);
-            DisplayDepthArrayInColour(depthArray);
-//            DisplayDepthArrayIn +Greyscale(depthArray);
+//            DisplayDepthArrayInColour(depthArray);
+            DisplayDepthArrayInGreyscale(depthArray);
         }
 
         private void DisplayDepthArrayInGreyscale(short[] depthArray)
@@ -111,8 +142,6 @@ namespace KinectShapeRecognition
                 .Select(d => GetColourForDepthOrDefault(d, x => HsvToBgr32(x * largePrime, 1, 1)))
                 .ToArray();
 
-//            DrawFrame(colourArray, BLACK_COLOUR);
-
             DisplayColourArray(colourArray, bytesPerPixel, pixelFormat);
         }
 
@@ -121,12 +150,33 @@ namespace KinectShapeRecognition
             return depth == 0 || depth == -8 ? WHITE_COLOUR : getDefault.Invoke(depth);
         }
 
+        private void DisplayColourArray(Array colourArray, int bytesPerPixel, PixelFormat pixelFormat)
+        {
+            if (isFrameEnabled)
+            {
+                DrawFrame(colourArray, BLACK_COLOUR);
+            }
+
+            int dpiX = 96, dpiY = dpiX;
+
+            image.Source = BitmapSource.Create(
+                pixelWidth,
+                pixelHeight,
+                dpiX,
+                dpiY,
+                pixelFormat,
+                null,
+                colourArray,
+                pixelWidth * bytesPerPixel
+                );
+        }
+
         private void DrawFrame(Array colourArray, int frameColour)
         {
-            DrawRectangle(colourArray, frameX - frameWidth, frameY - frameWidth, frameX + frameSize, frameY, frameColour);
-            DrawRectangle(colourArray, frameX - frameWidth, frameY - frameWidth, frameX, frameY + frameSize, frameColour);
-            DrawRectangle(colourArray, frameX + frameSize, 0, 100, 100, frameColour);
-            DrawRectangle(colourArray, 0, 0, 100, 100, frameColour);
+            DrawRectangle(colourArray, frameX - frameWidth, frameY - frameWidth, frameX + frameSize + frameWidth + 1, frameY, frameColour);
+            DrawRectangle(colourArray, frameX - frameWidth, frameY - frameWidth, frameX, frameY + frameSize + frameWidth + 1, frameColour);
+            DrawRectangle(colourArray, frameX + frameSize + 1, frameY, frameX + frameSize + frameWidth + 1, frameY + frameSize + frameWidth + 1, frameColour);
+            DrawRectangle(colourArray, frameX, frameY + frameSize + 1, frameX + frameSize + frameWidth + 1, frameY + frameSize + frameWidth + 1, frameColour);
         }
 
         private void DrawRectangle(Array colourArray, int x1, int y1, int x2, int y2, int colour)
@@ -142,23 +192,16 @@ namespace KinectShapeRecognition
 
         private void DrawPoint(Array colourArray, int x, int y, int colour)
         {
-            colourArray.SetValue(colour, y * pixelWidth + x);
+            int index = GetIndex(x, y);
+            if (index >= 0 && index < colourArray.GetLength(0))
+            {
+                colourArray.SetValue(colour, index);   
+            }
         }
 
-        private void DisplayColourArray(Array colourArray, int bytesPerPixel, PixelFormat pixelFormat)
+        private static int GetIndex(int x, int y)
         {
-            int dpiX = 96, dpiY = dpiX;
-
-            image.Source = BitmapSource.Create(
-                pixelWidth,
-                pixelHeight,
-                dpiX,
-                dpiY,
-                pixelFormat,
-                null,
-                colourArray,
-                pixelWidth * bytesPerPixel
-                );
+            return y*pixelWidth + x;
         }
 
         private static int HsvToBgr32(double hue, double saturation, double value)
@@ -191,7 +234,19 @@ namespace KinectShapeRecognition
 
         private void ApplyButton_Click(object sender, RoutedEventArgs e)
         {
+            ReadFrameValues();
+            // TODO: Remove debug code
+            DisplayDataFile();
+        }
 
+        private void ReadFrameValues()
+        {
+            isFrameEnabled = (bool) IsFrameEnabledCheckBox.IsChecked;
+            frameSize = int.Parse(FrameSizeTextBox.Text);
+            frameX = pixelWidth/2 - 1 - frameSize/2;
+            frameY = pixelHeight/2 - 1 - frameSize/2;
+            minDepth = int.Parse(MinDepthTextBox.Text);
+            maxDepth = int.Parse(MaxDepthTextBox.Text);
         }
     }
 }
