@@ -5,7 +5,7 @@
         Title="MainWindow" Height="441" Width="712">
     <Grid>
         <Image x:Name="image" HorizontalAlignment="Left" Height="299" Margin="34,40,0,0" VerticalAlignment="Top" Width="399"/>
-        <Button x:Name="StartButton" Content="Start" HorizontalAlignment="Left" Margin="587,42,0,0" VerticalAlignment="Top" Width="75" Click="StartButton_Click"/>
+        <Button x:Name="StartButton" Content="Capture Kinect" HorizontalAlignment="Left" Margin="576,42,0,0" VerticalAlignment="Top" Width="86" Click="StartButton_Click"/>
         <Button x:Name="ApplyButton" Content="Apply" HorizontalAlignment="Left" Margin="587,353,0,0" VerticalAlignment="Top" Width="75" Click="ApplyButton_Click"/>
         <TextBox x:Name="FrameSizeTextBox" HorizontalAlignment="Left" Height="23" Margin="542,318,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Text="50"/>
         <TextBox x:Name="MinDepthTextBox" HorizontalAlignment="Left" Height="23" Margin="541,234,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Text="8000"/>
@@ -14,6 +14,9 @@
         <Label Content="Min Depth" HorizontalAlignment="Left" Margin="471,231,0,0" VerticalAlignment="Top"/>
         <Label Content="Frame Size" HorizontalAlignment="Left" Margin="470,315,0,0" VerticalAlignment="Top"/>
         <CheckBox x:Name="IsFrameEnabledCheckBox" Content="Enable Frame" HorizontalAlignment="Left" Margin="471,353,0,0" VerticalAlignment="Top" IsChecked="True" />
+        <TextBox x:Name="FileNameTextBox" HorizontalAlignment="Left" Height="23" Margin="541,125,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Text="air_pen_0.txt"/>
+        <Label Content="File Name" HorizontalAlignment="Left" Margin="471,122,0,0" VerticalAlignment="Top"/>
+        <Button x:Name="ReadFileButton" Content="Read File" HorizontalAlignment="Left" Margin="587,153,0,0" VerticalAlignment="Top" Width="75" Click="ReadFileButton_Click"/>
 
     </Grid>
 </Window>

@@ -31,31 +31,40 @@ namespace KinectShapeRecognition
         private bool isFrameEnabled;
         private int frameSize, frameX, frameY;
         private int minDepth, maxDepth;
+        private short[] currentDepthArray;
 
         public MainWindow()
         {
             InitializeComponent();
-            DisplayDataFile();
+            ReadFrameValues();
+            DisplayDataFile("air_pen_0.txt");
         }
 
-        private void DisplayDataFile()
+        private void ReadFileButton_Click(object sender, RoutedEventArgs e)
         {
-            String textData = File.ReadAllText(@"data\table_pen_0.txt");
-            var depthArray = textData.Split(',')
+            DisplayDataFile(FileNameTextBox.Text);
+        }
+
+        private void DisplayDataFile(String fileName)
+        {
+            String textData;
+
+            try
+            {
+                textData = File.ReadAllText(String.Format(@"data\{0}", fileName));
+            }
+            catch (FileNotFoundException ex)
+            {
+                Console.WriteLine(ex);
+                return;
+            }
+           
+            currentDepthArray = textData.Split(',')
                 .Where(s => !String.IsNullOrEmpty(s))
                 .Select(short.Parse)
                 .ToArray();
 
-            ReadFrameValues();
-
-            if (isFrameEnabled)
-            {
-                FilterDepth(depthArray);
-            }
-
-//            DisplayDepthArrayInGreyscale(depthArray);
-//            DisplayDepthArrayInColour(depthArray);
-            DisplayDepthArrayInColourExplicit(depthArray);
+            Redraw();
         }
 
         private void FilterDepth(short[] depthArray)
@@ -98,13 +107,25 @@ namespace KinectShapeRecognition
                 return;
             }
 
-            short[] depthArray = new short[imageFrame.PixelDataLength]
-                .Select(d => (short) (d < 10000 || d > 15000 ? -8 : d))
-                .ToArray();
-            imageFrame.CopyPixelDataTo(depthArray);
-//            DisplayDepthArrayInColourExplicit(depthArray);
-//            DisplayDepthArrayInColour(depthArray);
-            DisplayDepthArrayInGreyscale(depthArray);
+            currentDepthArray = new short[imageFrame.PixelDataLength];
+            imageFrame.CopyPixelDataTo(currentDepthArray);
+            Redraw();
+        }
+
+        private void Redraw()
+        {
+            short[] filteredDepthArray = currentDepthArray;
+
+            if (isFrameEnabled)
+            {
+                filteredDepthArray = new short[currentDepthArray.GetLength(0)];
+                Array.Copy(currentDepthArray, filteredDepthArray, currentDepthArray.GetLength(0));
+                FilterDepth(filteredDepthArray);
+            }
+
+            // DisplayDepthArrayInGreyscale(filteredDepthArray);
+            DisplayDepthArrayInColour(filteredDepthArray);
+            // DisplayDepthArrayInColourExplicit(filteredDepthArray);
         }
 
         private void DisplayDepthArrayInGreyscale(short[] depthArray)
@@ -235,8 +256,7 @@ namespace KinectShapeRecognition
         private void ApplyButton_Click(object sender, RoutedEventArgs e)
         {
             ReadFrameValues();
-            // TODO: Remove debug code
-            DisplayDataFile();
+            Redraw();
         }
 
         private void ReadFrameValues()
