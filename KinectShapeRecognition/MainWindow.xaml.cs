@@ -27,17 +27,18 @@ namespace KinectShapeRecognition
         private static readonly int WHITE_COLOUR = 0xFFFFFF;
 
         private KinectSensor sensor;
-        private bool isCapturing = false;
+        private bool isCapturing;
         private bool isFrameEnabled;
         private int frameSize, frameX, frameY;
         private int minDepth, maxDepth;
         private short[] currentDepthArray;
+        private short fileNumber;
 
         public MainWindow()
         {
             InitializeComponent();
             ReadFrameValues();
-            DisplayDataFile("air_pen_0.txt");
+            DisplayDataFile(FileNameTextBox.Text);
         }
 
         private void ReadFileButton_Click(object sender, RoutedEventArgs e)
@@ -55,6 +56,7 @@ namespace KinectShapeRecognition
             }
             catch (FileNotFoundException ex)
             {
+                MessageBox.Show(ex.ToString());
                 Console.WriteLine(ex);
                 return;
             }
@@ -73,7 +75,7 @@ namespace KinectShapeRecognition
             {
                 for (int x = frameX + 1; x < frameX + 1 + frameSize; x++)
                 {
-                    int index = GetIndex(x, y);
+                    int index = GetIndex(x, y, frameWidth);
 
                     if (index < 0 || index >= depthArray.GetLength(0))
                     {
@@ -96,6 +98,7 @@ namespace KinectShapeRecognition
             sensor.Start();
             StartButton.IsEnabled = false;
             isCapturing = true;
+            SaveFrameButton.IsEnabled = true;
         }
 
         void DepthFrameReady(object sender, DepthImageFrameReadyEventArgs e)
@@ -107,7 +110,11 @@ namespace KinectShapeRecognition
                 return;
             }
 
-            currentDepthArray = new short[imageFrame.PixelDataLength];
+            if (currentDepthArray == null)
+            {
+                currentDepthArray = new short[imageFrame.PixelDataLength];                
+            }
+
             imageFrame.CopyPixelDataTo(currentDepthArray);
             Redraw();
         }
@@ -119,13 +126,14 @@ namespace KinectShapeRecognition
             if (isFrameEnabled)
             {
                 filteredDepthArray = new short[currentDepthArray.GetLength(0)];
+                // TODO: Disable array copy if performance is low
                 Array.Copy(currentDepthArray, filteredDepthArray, currentDepthArray.GetLength(0));
                 FilterDepth(filteredDepthArray);
             }
 
             // DisplayDepthArrayInGreyscale(filteredDepthArray);
-            DisplayDepthArrayInColour(filteredDepthArray);
-            // DisplayDepthArrayInColourExplicit(filteredDepthArray);
+//            DisplayDepthArrayInColour(filteredDepthArray);
+             DisplayDepthArrayInColourExplicit(filteredDepthArray);
         }
 
         private void DisplayDepthArrayInGreyscale(short[] depthArray)
@@ -190,6 +198,16 @@ namespace KinectShapeRecognition
                 colourArray,
                 pixelWidth * bytesPerPixel
                 );
+//            image.Source = BitmapSource.Create(
+//                50,
+//                50,
+//                dpiX,
+//                dpiY,
+//                pixelFormat,
+//                null,
+//                colourArray,
+//                50 * bytesPerPixel
+//                );
         }
 
         private void DrawFrame(Array colourArray, int frameColour)
@@ -213,16 +231,16 @@ namespace KinectShapeRecognition
 
         private void DrawPoint(Array colourArray, int x, int y, int colour)
         {
-            int index = GetIndex(x, y);
+            int index = GetIndex(x, y, pixelWidth);
             if (index >= 0 && index < colourArray.GetLength(0))
             {
                 colourArray.SetValue(colour, index);   
             }
         }
 
-        private static int GetIndex(int x, int y)
+        private static int GetIndex(int x, int y, int width)
         {
-            return y*pixelWidth + x;
+            return y*width + x;
         }
 
         private static int HsvToBgr32(double hue, double saturation, double value)
@@ -261,12 +279,66 @@ namespace KinectShapeRecognition
 
         private void ReadFrameValues()
         {
-            isFrameEnabled = (bool) IsFrameEnabledCheckBox.IsChecked;
-            frameSize = int.Parse(FrameSizeTextBox.Text);
-            frameX = pixelWidth/2 - 1 - frameSize/2;
-            frameY = pixelHeight/2 - 1 - frameSize/2;
-            minDepth = int.Parse(MinDepthTextBox.Text);
-            maxDepth = int.Parse(MaxDepthTextBox.Text);
+            try
+            {
+                isFrameEnabled = (bool) IsFrameEnabledCheckBox.IsChecked;
+                frameSize = int.Parse(FrameSizeTextBox.Text);
+                frameX = pixelWidth/2 - 1 - frameSize/2;
+                frameY = pixelHeight/2 - 1 - frameSize/2;
+                minDepth = int.Parse(MinDepthTextBox.Text);
+                maxDepth = int.Parse(MaxDepthTextBox.Text);
+            }
+            catch (FormatException ex)
+            {
+                MessageBox.Show(ex.ToString());
+                Console.WriteLine(ex);
+            }
+        }
+
+        private void SaveFrameButton_Click(object sender, RoutedEventArgs e)
+        {
+            short[] frameDepthArray = currentDepthArray;
+
+            if (isFrameEnabled)
+            {
+                frameDepthArray = new short[frameSize * frameSize];
+
+                int startX = frameX + 1;
+                int startY = frameY + 1;
+
+                for (int y = startY; y < startY + frameSize; y++)
+                {
+                    for (int x = startX; x < startX + frameSize; x++)
+                    {
+                        int index = GetIndex(x, y, pixelWidth);
+
+                        if (index < 0 || index >= currentDepthArray.GetLength(0))
+                        {
+                            continue;
+                        }
+
+                        int frameArrayIndex = GetIndex(x - startX, y - startY, frameSize);
+
+                        frameDepthArray[frameArrayIndex] = currentDepthArray[index];
+                    }
+                }   
+            }
+
+            String fileName = @".\data\data" + fileNumber + @".txt";
+            SerializeArray(frameDepthArray, fileName);
+            fileNumber++;
+        }
+
+        private void SerializeArray(Array array, String fileName)
+        {
+            StringBuilder builder = new StringBuilder();
+
+            foreach (var element in array)
+            {
+                builder.Append(element.ToString() + ',');
+            }
+
+            File.WriteAllText(fileName, builder.ToString());
         }
     }
 }
