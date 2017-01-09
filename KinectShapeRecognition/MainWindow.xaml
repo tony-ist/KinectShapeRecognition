@@ -2,22 +2,22 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" x:Class="KinectShapeRecognition.MainWindow"
-        Title="MainWindow" Height="441" Width="712">
+        Title="MainWindow" Height="573" Width="962">
     <Grid>
-        <Image x:Name="image" HorizontalAlignment="Left" Height="299" Margin="34,40,0,0" VerticalAlignment="Top" Width="399" Stretch="None"/>
-        <Button x:Name="StartButton" Content="Capture Kinect" HorizontalAlignment="Left" Margin="576,42,0,0" VerticalAlignment="Top" Width="86" Click="StartButton_Click"/>
-        <Button x:Name="ApplyButton" Content="Apply" HorizontalAlignment="Left" Margin="587,353,0,0" VerticalAlignment="Top" Width="75" Click="ApplyButton_Click"/>
-        <TextBox x:Name="FrameSizeTextBox" HorizontalAlignment="Left" Height="23" Margin="542,318,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Text="50"/>
-        <TextBox x:Name="MinDepthTextBox" HorizontalAlignment="Left" Height="23" Margin="541,256,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Text="8000"/>
-        <TextBox x:Name="MaxDepthTextBox" HorizontalAlignment="Left" Height="23" Margin="541,287,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Text="40000"/>
-        <Label Content="Max Depth" HorizontalAlignment="Left" Margin="469,283,0,0" VerticalAlignment="Top"/>
-        <Label Content="Min Depth" HorizontalAlignment="Left" Margin="471,253,0,0" VerticalAlignment="Top"/>
-        <Label Content="Frame Size" HorizontalAlignment="Left" Margin="470,315,0,0" VerticalAlignment="Top"/>
-        <CheckBox x:Name="IsFrameEnabledCheckBox" Content="Enable Frame" HorizontalAlignment="Left" Margin="471,353,0,0" VerticalAlignment="Top" IsChecked="True" />
-        <TextBox x:Name="FileNameTextBox" HorizontalAlignment="Left" Height="23" Margin="541,151,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Text="table_pen_0.txt"/>
-        <Label Content="File Name" HorizontalAlignment="Left" Margin="471,148,0,0" VerticalAlignment="Top"/>
-        <Button x:Name="ReadFileButton" Content="Read File" HorizontalAlignment="Left" Margin="587,179,0,0" VerticalAlignment="Top" Width="75" Click="ReadFileButton_Click"/>
-        <Button x:Name="SaveFrameButton" Content="Save Frame" HorizontalAlignment="Left" Margin="576,67,0,0" VerticalAlignment="Top" Width="86" IsEnabled="True" Click="SaveFrameButton_Click"/>
+        <Image x:Name="image" HorizontalAlignment="Left" Height="480" Margin="32,31,0,0" VerticalAlignment="Top" Width="640"/>
+        <Button x:Name="StartButton" Content="Capture Kinect" HorizontalAlignment="Left" Margin="836,33,0,0" VerticalAlignment="Top" Width="86" Click="StartButton_Click"/>
+        <Button x:Name="ApplyButton" Content="Apply" HorizontalAlignment="Left" Margin="847,344,0,0" VerticalAlignment="Top" Width="75" Click="ApplyButton_Click"/>
+        <TextBox x:Name="FrameSizeTextBox" HorizontalAlignment="Left" Height="23" Margin="802,309,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Text="50"/>
+        <TextBox x:Name="MinDepthTextBox" HorizontalAlignment="Left" Height="23" Margin="801,247,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Text="8000"/>
+        <TextBox x:Name="MaxDepthTextBox" HorizontalAlignment="Left" Height="23" Margin="801,278,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Text="40000"/>
+        <Label Content="Max Depth" HorizontalAlignment="Left" Margin="729,274,0,0" VerticalAlignment="Top"/>
+        <Label Content="Min Depth" HorizontalAlignment="Left" Margin="731,244,0,0" VerticalAlignment="Top"/>
+        <Label Content="Frame Size" HorizontalAlignment="Left" Margin="730,306,0,0" VerticalAlignment="Top"/>
+        <CheckBox x:Name="IsFrameEnabledCheckBox" Content="Enable Frame" HorizontalAlignment="Left" Margin="731,344,0,0" VerticalAlignment="Top" IsChecked="True" />
+        <TextBox x:Name="FileNameTextBox" HorizontalAlignment="Left" Height="23" Margin="801,142,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Text="table_pen_0.txt"/>
+        <Label Content="File Name" HorizontalAlignment="Left" Margin="731,139,0,0" VerticalAlignment="Top"/>
+        <Button x:Name="ReadFileButton" Content="Read File" HorizontalAlignment="Left" Margin="847,170,0,0" VerticalAlignment="Top" Width="75" Click="ReadFileButton_Click"/>
+        <Button x:Name="SaveFrameButton" Content="Save Frame" HorizontalAlignment="Left" Margin="836,58,0,0" VerticalAlignment="Top" Width="86" IsEnabled="True" Click="SaveFrameButton_Click"/>
 
     </Grid>
 </Window>

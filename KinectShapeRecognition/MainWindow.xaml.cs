@@ -71,23 +71,15 @@ namespace KinectShapeRecognition
 
         private void FilterDepth(short[] depthArray)
         {
-            for (int y = frameY + 1; y < frameY + 1 + frameSize; y++)
+            IterateFrame((x, y) =>
             {
-                for (int x = frameX + 1; x < frameX + 1 + frameSize; x++)
+                int index = GetIndex(x, y, pixelWidth);
+
+                if (depthArray[index] < minDepth || depthArray[index] > maxDepth)
                 {
-                    int index = GetIndex(x, y, frameWidth);
-
-                    if (index < 0 || index >= depthArray.GetLength(0))
-                    {
-                        continue;
-                    }
-
-                    if (depthArray[index] < minDepth || depthArray[index] > maxDepth)
-                    {
-                        depthArray[index] = 0;
-                    }
+                    depthArray[index] = 0;
                 }
-            }
+            });
         }
 
         private void StartButton_Click(object sender, RoutedEventArgs e)
@@ -131,9 +123,9 @@ namespace KinectShapeRecognition
                 FilterDepth(filteredDepthArray);
             }
 
-            // DisplayDepthArrayInGreyscale(filteredDepthArray);
-//            DisplayDepthArrayInColour(filteredDepthArray);
-             DisplayDepthArrayInColourExplicit(filteredDepthArray);
+//             DisplayDepthArrayInGreyscale(filteredDepthArray);
+            DisplayDepthArrayInColour(filteredDepthArray);
+//             DisplayDepthArrayInColourExplicit(filteredDepthArray);
         }
 
         private void DisplayDepthArrayInGreyscale(short[] depthArray)
@@ -302,31 +294,38 @@ namespace KinectShapeRecognition
             if (isFrameEnabled)
             {
                 frameDepthArray = new short[frameSize * frameSize];
-
-                int startX = frameX + 1;
-                int startY = frameY + 1;
-
-                for (int y = startY; y < startY + frameSize; y++)
+                IterateFrame((x, y) =>
                 {
-                    for (int x = startX; x < startX + frameSize; x++)
-                    {
-                        int index = GetIndex(x, y, pixelWidth);
-
-                        if (index < 0 || index >= currentDepthArray.GetLength(0))
-                        {
-                            continue;
-                        }
-
-                        int frameArrayIndex = GetIndex(x - startX, y - startY, frameSize);
-
-                        frameDepthArray[frameArrayIndex] = currentDepthArray[index];
-                    }
-                }   
+                    int depth = currentDepthArray[GetIndex(x, y, pixelWidth)];
+                    int frameIndex = GetIndex(x - frameX - 1, y - frameY - 1, frameSize);
+                    frameDepthArray[frameIndex] = (short) (depth < minDepth || depth > maxDepth ? 0 : depth);
+                });
             }
 
             String fileName = @".\data\data" + fileNumber + @".txt";
             SerializeArray(frameDepthArray, fileName);
             fileNumber++;
+        }
+
+        private void IterateFrame(Action<int, int> step)
+        {
+            int startX = frameX + 1;
+            int startY = frameY + 1;
+
+            for (int y = startY; y < startY + frameSize; y++)
+            {
+                for (int x = startX; x < startX + frameSize; x++)
+                {
+                    int index = GetIndex(x, y, pixelWidth);
+
+                    if (index < 0 || index >= currentDepthArray.GetLength(0))
+                    {
+                        continue;
+                    }
+
+                    step.Invoke(x, y);
+                }
+            }   
         }
 
         private void SerializeArray(Array array, String fileName)
