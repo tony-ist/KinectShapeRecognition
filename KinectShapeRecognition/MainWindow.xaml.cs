@@ -22,60 +22,127 @@ namespace KinectShapeRecognition
     {
         private static readonly int pixelWidth = 320;
         private static readonly int pixelHeight = 240;
+        private static readonly int frameWidth = 3;
+        private static readonly int BLACK_COLOUR = 0x000000;
+        private static readonly int WHITE_COLOUR = 0xFFFFFF;
+
+        private KinectSensor sensor;
+        private Boolean isCapturing = false;
+        private int frameX, frameY, frameSize;
 
         public MainWindow()
         {
             InitializeComponent();
+            DisplayDataFile();
+        }
+
+        private void DisplayDataFile()
+        {
             String textData = File.ReadAllText(@"data\table_pen_0.txt");
             var depthArray = textData.Split(',')
                 .Where(s => !String.IsNullOrEmpty(s))
-                .Select(int.Parse)
+                .Select(short.Parse)
                 .ToArray();
-//            DisplayDepthArrayInGreyscale(depthArray);
-//            DisplayDepthArrayInColour(depthArray);
-            DisplayDepthArrayInColourExplicit(depthArray);
+            DisplayDepthArrayInGreyscale(depthArray);
+            DisplayDepthArrayInColour(depthArray);
+//            DisplayDepthArrayInColourExplicit(depthArray);
         }
 
         private void StartButton_Click(object sender, RoutedEventArgs e)
         {
-
+            sensor = KinectSensor.KinectSensors[0];
+            sensor.DepthStream.Enable(DepthImageFormat.Resolution320x240Fps30);
+            sensor.DepthFrameReady += DepthFrameReady;
+            sensor.Start();
+            StartButton.IsEnabled = false;
+            isCapturing = true;
         }
 
-        private void DisplayDepthArrayInGreyscale(int[] depthArray)
+        void DepthFrameReady(object sender, DepthImageFrameReadyEventArgs e)
+        {
+            DepthImageFrame imageFrame = e.OpenDepthImageFrame();
+
+            if (imageFrame == null)
+            {
+                return;
+            }
+
+            short[] depthArray = new short[imageFrame.PixelDataLength]
+                .Select(d => (short) (d < 10000 || d > 15000 ? -8 : d))
+                .ToArray();
+            imageFrame.CopyPixelDataTo(depthArray);
+//            DisplayDepthArrayInColourExplicit(depthArray);
+            DisplayDepthArrayInColour(depthArray);
+//            DisplayDepthArrayIn +Greyscale(depthArray);
+        }
+
+        private void DisplayDepthArrayInGreyscale(short[] depthArray)
         {
             int bytesPerPixel = sizeof(short);
             PixelFormat pixelFormat = PixelFormats.Gray16;
             int maxDepth = depthArray.Max();
             int maxColour = 1 << 16;
             short[] colourArray = depthArray
-                .Select(d => (short) (d == 0 ? 0 : d == -8 ? 0xffff : (double)d / maxDepth * maxColour))
+                .Select(d => (short) GetColourForDepthOrDefault(d, x => x / maxDepth * maxColour))
                 .ToArray();
 
             DisplayColourArray(colourArray, bytesPerPixel, pixelFormat);
         }
 
-        private void DisplayDepthArrayInColour(int[] depthArray)
+        private void DisplayDepthArrayInColour(short[] depthArray)
         {
             int bytesPerPixel = sizeof(int);
             PixelFormat pixelFormat = PixelFormats.Bgr32;
+            int minDepth = depthArray.Where(x => x > 0).Min();
             int maxDepth = depthArray.Max();
             int[] colourArray = depthArray
-                .Select(d => d == 0 ? 0 : d == -8 ? 0xffffff : HsvToBgr32((double)d / maxDepth * 360, 1, 1))
+                .Select(d => GetColourForDepthOrDefault(d, x => HsvToBgr32((double)(x - minDepth) / (maxDepth - minDepth) * 360, 1, 1)))
                 .ToArray();
 
             DisplayColourArray(colourArray, bytesPerPixel, pixelFormat);
         }
 
-        private void DisplayDepthArrayInColourExplicit(int[] depthArray)
+        private void DisplayDepthArrayInColourExplicit(short[] depthArray)
         {
             int bytesPerPixel = sizeof(int);
             PixelFormat pixelFormat = PixelFormats.Bgr32;
             int largePrime = 3121;
             int[] colourArray = depthArray
-                .Select(d => d == 0 ? 0 : d == -8 ? 0xffffff : HsvToBgr32(d * largePrime, 1, 1))
+                .Select(d => GetColourForDepthOrDefault(d, x => HsvToBgr32(x * largePrime, 1, 1)))
                 .ToArray();
 
+//            DrawFrame(colourArray, BLACK_COLOUR);
+
             DisplayColourArray(colourArray, bytesPerPixel, pixelFormat);
+        }
+
+        private int GetColourForDepthOrDefault(int depth, Func<int, int> getDefault)
+        {
+            return depth == 0 || depth == -8 ? WHITE_COLOUR : getDefault.Invoke(depth);
+        }
+
+        private void DrawFrame(Array colourArray, int frameColour)
+        {
+            DrawRectangle(colourArray, frameX - frameWidth, frameY - frameWidth, frameX + frameSize, frameY, frameColour);
+            DrawRectangle(colourArray, frameX - frameWidth, frameY - frameWidth, frameX, frameY + frameSize, frameColour);
+            DrawRectangle(colourArray, frameX + frameSize, 0, 100, 100, frameColour);
+            DrawRectangle(colourArray, 0, 0, 100, 100, frameColour);
+        }
+
+        private void DrawRectangle(Array colourArray, int x1, int y1, int x2, int y2, int colour)
+        {
+            for (int y = y1; y <= y2; y++)
+            {
+                for (int x = x1; x <= x2; x++)
+                {
+                    DrawPoint(colourArray, x, y, colour);
+                }
+            }
+        }
+
+        private void DrawPoint(Array colourArray, int x, int y, int colour)
+        {
+            colourArray.SetValue(colour, y * pixelWidth + x);
         }
 
         private void DisplayColourArray(Array colourArray, int bytesPerPixel, PixelFormat pixelFormat)
@@ -120,6 +187,11 @@ namespace KinectShapeRecognition
                 default:
                     return (v << 16) + (p << 8) + q;
             }
+        }
+
+        private void ApplyButton_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

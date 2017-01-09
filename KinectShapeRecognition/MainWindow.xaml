@@ -5,10 +5,10 @@
     <Grid>
         <Image x:Name="image" HorizontalAlignment="Left" Height="299" Margin="34,40,0,0" VerticalAlignment="Top" Width="399"/>
         <Button x:Name="StartButton" Content="Start" HorizontalAlignment="Left" Margin="587,42,0,0" VerticalAlignment="Top" Width="75" Click="StartButton_Click"/>
-        <Button x:Name="ApplyButton" Content="Apply" HorizontalAlignment="Left" Margin="587,353,0,0" VerticalAlignment="Top" Width="75"/>
+        <Button x:Name="ApplyButton" Content="Apply" HorizontalAlignment="Left" Margin="587,353,0,0" VerticalAlignment="Top" Width="75" Click="ApplyButton_Click"/>
         <TextBox x:Name="FrameSizeTextBox" HorizontalAlignment="Left" Height="23" Margin="542,318,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
         <TextBox x:Name="FrameYTextBox" HorizontalAlignment="Left" Height="23" Margin="542,290,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-        <TextBox x:Name="FrameXTextBox" HorizontalAlignment="Left" Height="23" Margin="542,261,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TextChanged="TextBox_TextChanged"/>
+        <TextBox x:Name="FrameXTextBox" HorizontalAlignment="Left" Height="23" Margin="542,261,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
         <TextBox x:Name="MinDepthTextBox" HorizontalAlignment="Left" Height="23" Margin="542,210,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
         <TextBox x:Name="MaxDepthTextBox" HorizontalAlignment="Left" Height="23" Margin="542,179,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
         <Label Content="Max Depth" HorizontalAlignment="Left" Margin="469,176,0,0" VerticalAlignment="Top"/>
