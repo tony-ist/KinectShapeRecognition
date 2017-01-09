@@ -190,16 +190,6 @@ namespace KinectShapeRecognition
                 colourArray,
                 pixelWidth * bytesPerPixel
                 );
-//            image.Source = BitmapSource.Create(
-//                50,
-//                50,
-//                dpiX,
-//                dpiY,
-//                pixelFormat,
-//                null,
-//                colourArray,
-//                50 * bytesPerPixel
-//                );
         }
 
         private void DrawFrame(Array colourArray, int frameColour)
