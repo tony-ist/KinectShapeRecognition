@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" x:Class="KinectShapeRecognition.MainWindow"
         Title="MainWindow" Height="573" Width="962">
     <Grid>
-        <Image x:Name="image" HorizontalAlignment="Left" Height="480" Margin="32,31,0,0" VerticalAlignment="Top" Width="640"/>
+        <Image x:Name="image" HorizontalAlignment="Left" Height="480" Margin="32,31,0,0" VerticalAlignment="Top" Width="640" />
         <Button x:Name="StartButton" Content="Capture Kinect" HorizontalAlignment="Left" Margin="836,33,0,0" VerticalAlignment="Top" Width="86" Click="StartButton_Click"/>
         <Button x:Name="ApplyButton" Content="Apply" HorizontalAlignment="Left" Margin="847,413,0,0" VerticalAlignment="Top" Width="75" Click="ApplyButton_Click"/>
         <TextBox x:Name="FrameSizeTextBox" HorizontalAlignment="Left" Height="23" Margin="802,378,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Text="50"/>
@@ -14,14 +14,14 @@
         <Label Content="Min Depth" HorizontalAlignment="Left" Margin="731,313,0,0" VerticalAlignment="Top"/>
         <Label Content="Frame Size" HorizontalAlignment="Left" Margin="730,375,0,0" VerticalAlignment="Top"/>
         <CheckBox x:Name="IsFrameEnabledCheckBox" Content="Enable Frame" HorizontalAlignment="Left" Margin="731,413,0,0" VerticalAlignment="Top" IsChecked="True" />
-        <TextBox x:Name="FileNameTextBox" HorizontalAlignment="Left" Height="23" Margin="801,240,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Text="table_pen_0.txt"/>
+        <TextBox x:Name="FileNameTextBox" HorizontalAlignment="Left" Height="23" Margin="801,240,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="120" Text="table_pen_0.txt"/>
         <Label Content="File Name" HorizontalAlignment="Left" Margin="731,237,0,0" VerticalAlignment="Top"/>
         <Button x:Name="ReadFileButton" Content="Read File" HorizontalAlignment="Left" Margin="847,268,0,0" VerticalAlignment="Top" Width="75" Click="ReadFileButton_Click"/>
         <Button x:Name="SaveFrameButton" Content="Save Frame" HorizontalAlignment="Left" Margin="836,58,0,0" VerticalAlignment="Top" Width="86" IsEnabled="True" Click="SaveFrameButton_Click"/>
-        <Label Content="Object" HorizontalAlignment="Left" Margin="756,137,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="ObjectLabel" Content="Unknown" HorizontalAlignment="Left" Margin="801,137,0,0" VerticalAlignment="Top"/>
-        <Label Content="Vector" HorizontalAlignment="Left" Margin="756,163,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="VectorLabel" Content="Unknown" HorizontalAlignment="Left" Margin="801,163,0,0" VerticalAlignment="Top"/>
+        <Label Content="Object" HorizontalAlignment="Left" Margin="728,129,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="ObjectLabel" Content="Unknown" HorizontalAlignment="Left" Margin="780,120,0,0" VerticalAlignment="Top" FontSize="20" FontWeight="Bold"/>
+        <Label Content="Vector" HorizontalAlignment="Left" Margin="728,166,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="VectorLabel" Content="Unknown" HorizontalAlignment="Left" Margin="780,157,0,0" VerticalAlignment="Top" FontSize="20" FontWeight="Bold"/>
 
     </Grid>
 </Window>

@@ -31,6 +31,7 @@ namespace KinectShapeRecognition
         private static readonly int BLACK_COLOUR = 0x000000;
         private static readonly int WHITE_COLOUR = 0xFFFFFF;
         private static readonly string[] objectNames = { "Box", "Mug", "Racket" };
+        private static readonly string dataFolder = "../data";
 
         private KinectSensor sensor;
         private bool isCapturing;
@@ -43,26 +44,30 @@ namespace KinectShapeRecognition
         private Net convNet;
         private int networkCounter = 0;
         private int networkFrequency = 15;
+        private double recognitionThreshold = 0.4;
 
         public MainWindow()
         {
             InitializeComponent();
             ReadFrameValues();
-            DisplayDataFile(FileNameTextBox.Text);
+            LoadNeuralNetwork();
+            // DisplayDataFile(FileNameTextBox.Text);
         }
 
         private void ReadFileButton_Click(object sender, RoutedEventArgs e)
         {
             DisplayDataFile(FileNameTextBox.Text);
+
+            // short[] depthArray = ReadDataFile(FileNameTextBox.Text);            
+            // double[] networkOutput = RecognizeObject(depthArray);
+            // DisplayNetworkOutput(networkOutput);
         }
 
         private void DisplayDataFile(String fileName)
         {
-            String textData;
-
             try
             {
-                textData = File.ReadAllText(String.Format(@"data\{0}", fileName));
+                currentDepthArray = ReadDataFile(fileName);
             }
             catch (FileNotFoundException ex)
             {
@@ -70,13 +75,18 @@ namespace KinectShapeRecognition
                 Console.WriteLine(ex);
                 return;
             }
-           
-            currentDepthArray = textData.Split(',')
-                .Where(s => !String.IsNullOrEmpty(s))
-                .Select(short.Parse)
-                .ToArray();
 
             Redraw();
+        }
+
+        private short[] ReadDataFile(String fileName)
+        {
+            String textData = File.ReadAllText(String.Format(@"{0}\{1}", dataFolder, fileName));
+
+            return textData.Split(',')
+                .Where(s => !String.IsNullOrEmpty(s))
+                .Select(short.Parse)
+                .ToArray();   
         }
 
         private void FilterDepth(short[] depthArray)
@@ -94,13 +104,6 @@ namespace KinectShapeRecognition
 
         private void StartButton_Click(object sender, RoutedEventArgs e)
         {
-//            FileStream networkFileStream = File.OpenRead(@"data/neural-network-40-180-2.txt");
-//            network = Network.Load(networkFileStream);
-//            String convNetJson = File.ReadAllText(@"data/conv-neural-network.json");
-//            convNet = SerializationExtensions.FromJSON(convNetJson);
-            FileStream convNetBin = File.OpenRead(@"data/conv-neural-network-bin");
-            convNet = (Net) SerializationExtensions.LoadBinary(convNetBin);
-
             sensor = KinectSensor.KinectSensors[0];
             sensor.DepthStream.Enable(DepthImageFormat.Resolution320x240Fps30);
             sensor.DepthFrameReady += DepthFrameReady;
@@ -110,7 +113,19 @@ namespace KinectShapeRecognition
             SaveFrameButton.IsEnabled = true;
         }
 
-        void DepthFrameReady(object sender, DepthImageFrameReadyEventArgs e)
+        private void LoadNeuralNetwork()
+        {
+            //FileStream networkFileStream = File.OpenRead(String.Format(@"{0}\neural-network-40-180-2.txt", dataFolder));
+            //network = Network.Load(networkFileStream);
+            //
+            //String convNetJson = File.ReadAllText(String.Format(@"{0}\conv-neural-network.json", dataFolder));
+            //convNet = SerializationExtensions.FromJSON(convNetJson);
+
+            FileStream convNetBin = File.OpenRead(String.Format(@"{0}\conv-neural-network-bin", dataFolder));
+            convNet = (Net)SerializationExtensions.LoadBinary(convNetBin);
+        }
+
+        private void DepthFrameReady(object sender, DepthImageFrameReadyEventArgs e)
         {
             DepthImageFrame imageFrame = e.OpenDepthImageFrame();
 
@@ -127,37 +142,36 @@ namespace KinectShapeRecognition
             imageFrame.CopyPixelDataTo(currentDepthArray);
             Redraw();
 
-            string objectName = "Unknown";
-            string vector = "Unknown";
-
             if (networkCounter % networkFrequency == 0 )
             {
-                double[] networkOutput = RecognizeObject();
-                ObjectLabel.Content = GetObjectName(networkOutput);
-                VectorLabel.Content = string.Join(", ", networkOutput.Select(x => x.ToString("N2")).ToArray());   
+                double[] networkOutput = RecognizeFrameObject();
+                DisplayNetworkOutput(networkOutput);
             }
 
             networkCounter++;
         }
 
-        private bool isFrameEmpty()
+        private void DisplayNetworkOutput(double[] networkOutput)
         {
-            IterateFrame((x, y) =>
-            {
-                GetIndex(x, y, frameSize);
-            });
-            throw new NotImplementedException();
+            string objectName = GetObjectName(networkOutput);
+            ObjectLabel.Content = objectName;
+            VectorLabel.Content = string.Join(", ", networkOutput.Select(x => x.ToString("N2")).ToArray());   
         }
 
         private void Redraw()
         {
+            if (currentDepthArray == null)
+            {
+                return;
+            }
+
             short[] filteredDepthArray = currentDepthArray;
 
             if (isFrameEnabled)
             {
-                filteredDepthArray = new short[currentDepthArray.GetLength(0)];
                 // TODO: Disable array copy if performance is low
-                Array.Copy(currentDepthArray, filteredDepthArray, currentDepthArray.GetLength(0));
+                // filteredDepthArray = new short[currentDepthArray.GetLength(0)];
+                // Array.Copy(currentDepthArray, filteredDepthArray, currentDepthArray.GetLength(0));
                 FilterDepth(filteredDepthArray);
             }
 
@@ -324,7 +338,7 @@ namespace KinectShapeRecognition
                 frameDepthArray = GetFrameContent();
             }
 
-            String fileName = @".\data\data" + fileNumber + @".txt";
+            String fileName = String.Format(@"{0}\data{1}.txt", dataFolder, fileNumber);
             SerializeArray(frameDepthArray, fileName);
             fileNumber++;
         }
@@ -374,12 +388,19 @@ namespace KinectShapeRecognition
             File.WriteAllText(fileName, builder.ToString());
         }
 
-        private double[] RecognizeObject()
+        private double[] RecognizeFrameObject()
         {
-//            double[] networkInput = FormatNeuralNetworkInput(GetFrameContent());
-//            double[] output = network.Compute(networkInput);
+            short[] frameDepthArray = GetFrameContent();
 
-            Volume networkInput = FormatConvNeuralNetworkInput(GetFrameContent());
+            return RecognizeObject(frameDepthArray);
+        }
+
+        private double[] RecognizeObject(short[] depthArray)
+        {
+            // double[] networkInput = FormatNeuralNetworkInput(depthArray);
+            // double[] output = network.Compute(networkInput);
+
+            Volume networkInput = FormatConvNeuralNetworkInput(depthArray);
             IVolume output = convNet.Forward(networkInput);
             double[] result = FormatConvNeuralNetworkOutput(output);
 
@@ -388,7 +409,15 @@ namespace KinectShapeRecognition
 
         private string GetObjectName(double[] networkOutput)
         {
-            return objectNames[networkOutput.ToList().IndexOf(networkOutput.Max())];
+            int maxIndex = networkOutput.ToList().IndexOf(networkOutput.Max());
+
+            if (networkOutput[maxIndex] < recognitionThreshold)
+            {
+                return "Unknown";
+            }
+
+            string objectName = objectNames[maxIndex];
+            return objectName;
         }
 
         private double[] FormatNeuralNetworkInput(short[] depthArray)
