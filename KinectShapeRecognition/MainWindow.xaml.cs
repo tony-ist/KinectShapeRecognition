@@ -15,6 +15,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Microsoft.Kinect;
+using AForge.Neuro;
 
 namespace KinectShapeRecognition
 {
@@ -25,6 +26,7 @@ namespace KinectShapeRecognition
         private static readonly int frameWidth = 3;
         private static readonly int BLACK_COLOUR = 0x000000;
         private static readonly int WHITE_COLOUR = 0xFFFFFF;
+        private static readonly string[] objectNames = { "Box", "Mug", "Racket" };
 
         private KinectSensor sensor;
         private bool isCapturing;
@@ -33,6 +35,7 @@ namespace KinectShapeRecognition
         private int minDepth, maxDepth;
         private short[] currentDepthArray;
         private short fileNumber;
+        private Network network;
 
         public MainWindow()
         {
@@ -84,6 +87,9 @@ namespace KinectShapeRecognition
 
         private void StartButton_Click(object sender, RoutedEventArgs e)
         {
+            FileStream networkFileStream = File.OpenRead(@"data/neural-network.txt");
+            network = Network.Load(networkFileStream);
+
             sensor = KinectSensor.KinectSensors[0];
             sensor.DepthStream.Enable(DepthImageFormat.Resolution320x240Fps30);
             sensor.DepthFrameReady += DepthFrameReady;
@@ -286,18 +292,24 @@ namespace KinectShapeRecognition
 
             if (isFrameEnabled)
             {
-                frameDepthArray = new short[frameSize * frameSize];
-                IterateFrame((x, y) =>
-                {
-                    int depth = currentDepthArray[GetIndex(x, y, pixelWidth)];
-                    int frameIndex = GetIndex(x - frameX - 1, y - frameY - 1, frameSize);
-                    frameDepthArray[frameIndex] = (short) (depth < minDepth || depth > maxDepth ? 0 : depth);
-                });
+                frameDepthArray = GetFrameContent();
             }
 
             String fileName = @".\data\data" + fileNumber + @".txt";
             SerializeArray(frameDepthArray, fileName);
             fileNumber++;
+        }
+
+        private short[] GetFrameContent()
+        {
+            short[] frameDepthArray = new short[frameSize * frameSize];
+            IterateFrame((x, y) =>
+            {
+                int depth = currentDepthArray[GetIndex(x, y, pixelWidth)];
+                int frameIndex = GetIndex(x - frameX - 1, y - frameY - 1, frameSize);
+                frameDepthArray[frameIndex] = (short)(depth < minDepth || depth > maxDepth ? 0 : depth);
+            });
+            return frameDepthArray;
         }
 
         private void IterateFrame(Action<int, int> step)
@@ -335,8 +347,41 @@ namespace KinectShapeRecognition
 
         private String RecognizeObject()
         {
-            int index = GetIndex(160, 120, pixelWidth);
-            return currentDepthArray[index] == 0 ? "Unknown" : "Box";
+//            int inputWidth = 50, inputHeight = inputWidth, inputSize = inputWidth * inputHeight;
+//            int neuronsCount = 60;
+//            int outputSize = 3;
+//
+//            var network2 = new ActivationNetwork(
+//                new SigmoidFunction(),
+//                inputSize,
+//                neuronsCount,
+//                outputSize
+//                );
+
+            double[] networkInput = FormatNeuralNetworkInput(GetFrameContent());
+            double[] output = network.Compute(networkInput);
+
+            int objectIndex = GetObjectIndex(output);
+
+            return objectNames[objectIndex];
+        }
+
+        private int GetObjectIndex(double[] networkOutput)
+        {
+            for (int i = 0; i < networkOutput.Length; i++)
+            {
+                if (networkOutput[i].Equals(0))
+                {
+                    return i;
+                }
+            }
+
+            throw new ArgumentException("Network output does not contain answer");
+        }
+
+        private double[] FormatNeuralNetworkInput(short[] depthArray)
+        {
+            return depthArray.Select(d => (double) d).ToArray();
         }
     }
 }
