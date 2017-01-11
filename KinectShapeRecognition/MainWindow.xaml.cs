@@ -41,6 +41,8 @@ namespace KinectShapeRecognition
         private short fileNumber;
         private Network network;
         private Net convNet;
+        private int networkCounter = 0;
+        private int networkFrequency = 15;
 
         public MainWindow()
         {
@@ -94,10 +96,10 @@ namespace KinectShapeRecognition
         {
 //            FileStream networkFileStream = File.OpenRead(@"data/neural-network-40-180-2.txt");
 //            network = Network.Load(networkFileStream);
-            String convNetJson = File.ReadAllText(@"data/conv-neural-network.json");
-            convNet = SerializationExtensions.FromJSON(convNetJson);
-//            FileStream convNetBin = File.OpenRead(@"data/conv-neural-network-bin");
-//            SerializationExtensions.LoadBinary(convNetBin);
+//            String convNetJson = File.ReadAllText(@"data/conv-neural-network.json");
+//            convNet = SerializationExtensions.FromJSON(convNetJson);
+            FileStream convNetBin = File.OpenRead(@"data/conv-neural-network-bin");
+            convNet = (Net) SerializationExtensions.LoadBinary(convNetBin);
 
             sensor = KinectSensor.KinectSensors[0];
             sensor.DepthStream.Enable(DepthImageFormat.Resolution320x240Fps30);
@@ -125,9 +127,26 @@ namespace KinectShapeRecognition
             imageFrame.CopyPixelDataTo(currentDepthArray);
             Redraw();
 
-            double[] networkOutput = RecognizeObject();
-            ObjectLabel.Content = GetObjectName(networkOutput);
-            VectorLabel.Content = string.Join(", ", networkOutput.Select(x => x.ToString("N2")).ToArray());
+            string objectName = "Unknown";
+            string vector = "Unknown";
+
+            if (networkCounter % networkFrequency == 0 )
+            {
+                double[] networkOutput = RecognizeObject();
+                ObjectLabel.Content = GetObjectName(networkOutput);
+                VectorLabel.Content = string.Join(", ", networkOutput.Select(x => x.ToString("N2")).ToArray());   
+            }
+
+            networkCounter++;
+        }
+
+        private bool isFrameEmpty()
+        {
+            IterateFrame((x, y) =>
+            {
+                GetIndex(x, y, frameSize);
+            });
+            throw new NotImplementedException();
         }
 
         private void Redraw()
@@ -340,7 +359,7 @@ namespace KinectShapeRecognition
 
                     step.Invoke(x, y);
                 }
-            }   
+            }
         }
 
         private void SerializeArray(Array array, String fileName)
@@ -379,10 +398,11 @@ namespace KinectShapeRecognition
 
         private Volume FormatConvNeuralNetworkInput(short[] depthArray)
         {
+            int minDepth = depthArray.Where(x => x > 0).DefaultIfEmpty((short)0).Min();
             var result = new Volume(frameSize, frameSize, 1, 0.0);
             for (int j = 0; j < depthArray.Length; j++)
             {
-                result.Set(j, depthArray[j]);
+                result.Set(j, depthArray[j] > 0 ? depthArray[j] - minDepth + 1 : 0);
             }
             return result;
         }
