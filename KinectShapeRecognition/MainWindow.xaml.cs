@@ -109,6 +109,9 @@ namespace KinectShapeRecognition
 
             imageFrame.CopyPixelDataTo(currentDepthArray);
             Redraw();
+
+            String objectName = RecognizeObject();
+            ObjectLabel.Content = objectName;
         }
 
         private void Redraw()
@@ -328,6 +331,12 @@ namespace KinectShapeRecognition
             }
 
             File.WriteAllText(fileName, builder.ToString());
+        }
+
+        private String RecognizeObject()
+        {
+            int index = GetIndex(160, 120, pixelWidth);
+            return currentDepthArray[index] == 0 ? "Unknown" : "Box";
         }
     }
 }

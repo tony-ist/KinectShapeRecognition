@@ -8,8 +8,8 @@
         <Button x:Name="StartButton" Content="Capture Kinect" HorizontalAlignment="Left" Margin="836,33,0,0" VerticalAlignment="Top" Width="86" Click="StartButton_Click"/>
         <Button x:Name="ApplyButton" Content="Apply" HorizontalAlignment="Left" Margin="847,344,0,0" VerticalAlignment="Top" Width="75" Click="ApplyButton_Click"/>
         <TextBox x:Name="FrameSizeTextBox" HorizontalAlignment="Left" Height="23" Margin="802,309,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Text="50"/>
-        <TextBox x:Name="MinDepthTextBox" HorizontalAlignment="Left" Height="23" Margin="801,247,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Text="8000"/>
-        <TextBox x:Name="MaxDepthTextBox" HorizontalAlignment="Left" Height="23" Margin="801,278,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Text="40000"/>
+        <TextBox x:Name="MinDepthTextBox" HorizontalAlignment="Left" Height="23" Margin="801,247,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Text="12000"/>
+        <TextBox x:Name="MaxDepthTextBox" HorizontalAlignment="Left" Height="23" Margin="801,278,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Text="14000"/>
         <Label Content="Max Depth" HorizontalAlignment="Left" Margin="729,274,0,0" VerticalAlignment="Top"/>
         <Label Content="Min Depth" HorizontalAlignment="Left" Margin="731,244,0,0" VerticalAlignment="Top"/>
         <Label Content="Frame Size" HorizontalAlignment="Left" Margin="730,306,0,0" VerticalAlignment="Top"/>
@@ -18,6 +18,8 @@
         <Label Content="File Name" HorizontalAlignment="Left" Margin="731,139,0,0" VerticalAlignment="Top"/>
         <Button x:Name="ReadFileButton" Content="Read File" HorizontalAlignment="Left" Margin="847,170,0,0" VerticalAlignment="Top" Width="75" Click="ReadFileButton_Click"/>
         <Button x:Name="SaveFrameButton" Content="Save Frame" HorizontalAlignment="Left" Margin="836,58,0,0" VerticalAlignment="Top" Width="86" IsEnabled="True" Click="SaveFrameButton_Click"/>
+        <Label Content="Object" HorizontalAlignment="Left" Margin="749,97,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="ObjectLabel" Content="Unknown" HorizontalAlignment="Left" Margin="794,97,0,0" VerticalAlignment="Top"/>
 
     </Grid>
 </Window>
