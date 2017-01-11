@@ -12,3 +12,9 @@ C:\Users\Михаил\projects\Classification\ConvNetSharp\bin\Debug\normnfkc.nl
 C:\Users\Михаил\projects\Classification\ConvNetSharp\bin\Debug\normnfkd.nlp
 C:\Users\Михаил\projects\Classification\ConvNetSharp\obj\Debug\ConvNetSharp.dll
 C:\Users\Михаил\projects\Classification\ConvNetSharp\obj\Debug\ConvNetSharp.pdb
+C:\Users\istan_000\Documents\Visual Studio 2013\Projects\opencv\KinectShapeRecognition\ConvNetSharp\bin\Debug\ConvNetSharp.dll.config
+C:\Users\istan_000\Documents\Visual Studio 2013\Projects\opencv\KinectShapeRecognition\ConvNetSharp\bin\Debug\ConvNetSharp.dll
+C:\Users\istan_000\Documents\Visual Studio 2013\Projects\opencv\KinectShapeRecognition\ConvNetSharp\bin\Debug\ConvNetSharp.pdb
+C:\Users\istan_000\Documents\Visual Studio 2013\Projects\opencv\KinectShapeRecognition\ConvNetSharp\obj\Debug\ConvNetSharp.csprojResolveAssemblyReference.cache
+C:\Users\istan_000\Documents\Visual Studio 2013\Projects\opencv\KinectShapeRecognition\ConvNetSharp\obj\Debug\ConvNetSharp.dll
+C:\Users\istan_000\Documents\Visual Studio 2013\Projects\opencv\KinectShapeRecognition\ConvNetSharp\obj\Debug\ConvNetSharp.pdb

@@ -92,8 +92,8 @@ namespace KinectShapeRecognition
 
         private void StartButton_Click(object sender, RoutedEventArgs e)
         {
-            FileStream networkFileStream = File.OpenRead(@"data/neural-network-40-180-2.txt");
-            network = Network.Load(networkFileStream);
+//            FileStream networkFileStream = File.OpenRead(@"data/neural-network-40-180-2.txt");
+//            network = Network.Load(networkFileStream);
             String convNetJson = File.ReadAllText(@"data/conv-neural-network.json");
             convNet = SerializationExtensions.FromJSON(convNetJson);
 //            FileStream convNetBin = File.OpenRead(@"data/conv-neural-network-bin");
