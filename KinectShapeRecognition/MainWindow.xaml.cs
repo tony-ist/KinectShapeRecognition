@@ -16,6 +16,10 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Microsoft.Kinect;
 using AForge.Neuro;
+using ConvNetSharp;
+using ConvNetSharp.Layers;
+using ConvNetSharp.Serialization;
+
 
 namespace KinectShapeRecognition
 {
@@ -36,6 +40,7 @@ namespace KinectShapeRecognition
         private short[] currentDepthArray;
         private short fileNumber;
         private Network network;
+        private Net convNet;
 
         public MainWindow()
         {
@@ -87,8 +92,12 @@ namespace KinectShapeRecognition
 
         private void StartButton_Click(object sender, RoutedEventArgs e)
         {
-            FileStream networkFileStream = File.OpenRead(@"data/neural-network.txt");
+            FileStream networkFileStream = File.OpenRead(@"data/neural-network-40-180-2.txt");
             network = Network.Load(networkFileStream);
+            String convNetJson = File.ReadAllText(@"data/conv-neural-network.json");
+            convNet = SerializationExtensions.FromJSON(convNetJson);
+//            FileStream convNetBin = File.OpenRead(@"data/conv-neural-network-bin");
+//            SerializationExtensions.LoadBinary(convNetBin);
 
             sensor = KinectSensor.KinectSensors[0];
             sensor.DepthStream.Enable(DepthImageFormat.Resolution320x240Fps30);
@@ -116,8 +125,9 @@ namespace KinectShapeRecognition
             imageFrame.CopyPixelDataTo(currentDepthArray);
             Redraw();
 
-            String objectName = RecognizeObject();
-            ObjectLabel.Content = objectName;
+            double[] networkOutput = RecognizeObject();
+            ObjectLabel.Content = GetObjectName(networkOutput);
+            VectorLabel.Content = string.Join(", ", networkOutput.Select(x => x.ToString("N2")).ToArray());
         }
 
         private void Redraw()
@@ -154,7 +164,7 @@ namespace KinectShapeRecognition
         {
             int bytesPerPixel = sizeof(int);
             PixelFormat pixelFormat = PixelFormats.Bgr32;
-            int minDepth = depthArray.Where(x => x > 0).Min();
+            int minDepth = depthArray.Where(x => x > 0).DefaultIfEmpty((short) 0).Min();
             int maxDepth = depthArray.Max();
             int[] colourArray = depthArray
                 .Select(d => GetColourForDepthOrDefault(d, x => HsvToBgr32((double)(x - minDepth) / (maxDepth - minDepth) * 360, 1, 1)))
@@ -345,43 +355,41 @@ namespace KinectShapeRecognition
             File.WriteAllText(fileName, builder.ToString());
         }
 
-        private String RecognizeObject()
+        private double[] RecognizeObject()
         {
-//            int inputWidth = 50, inputHeight = inputWidth, inputSize = inputWidth * inputHeight;
-//            int neuronsCount = 60;
-//            int outputSize = 3;
-//
-//            var network2 = new ActivationNetwork(
-//                new SigmoidFunction(),
-//                inputSize,
-//                neuronsCount,
-//                outputSize
-//                );
+//            double[] networkInput = FormatNeuralNetworkInput(GetFrameContent());
+//            double[] output = network.Compute(networkInput);
 
-            double[] networkInput = FormatNeuralNetworkInput(GetFrameContent());
-            double[] output = network.Compute(networkInput);
+            Volume networkInput = FormatConvNeuralNetworkInput(GetFrameContent());
+            IVolume output = convNet.Forward(networkInput);
+            double[] result = FormatConvNeuralNetworkOutput(output);
 
-            int objectIndex = GetObjectIndex(output);
-
-            return objectNames[objectIndex];
+            return result;
         }
 
-        private int GetObjectIndex(double[] networkOutput)
+        private string GetObjectName(double[] networkOutput)
         {
-            for (int i = 0; i < networkOutput.Length; i++)
-            {
-                if (networkOutput[i].Equals(0))
-                {
-                    return i;
-                }
-            }
-
-            throw new ArgumentException("Network output does not contain answer");
+            return objectNames[networkOutput.ToList().IndexOf(networkOutput.Max())];
         }
 
         private double[] FormatNeuralNetworkInput(short[] depthArray)
         {
             return depthArray.Select(d => (double) d).ToArray();
+        }
+
+        private Volume FormatConvNeuralNetworkInput(short[] depthArray)
+        {
+            var result = new Volume(frameSize, frameSize, 1, 0.0);
+            for (int j = 0; j < depthArray.Length; j++)
+            {
+                result.Set(j, depthArray[j]);
+            }
+            return result;
+        }
+
+        private double[] FormatConvNeuralNetworkOutput(IVolume output)
+        {
+            return new [] { output.Get(0, 0, 0), output.Get(0, 0, 1), output.Get(0, 0, 2)};
         }
     }
 }

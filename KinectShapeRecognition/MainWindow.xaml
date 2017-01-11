@@ -14,12 +14,14 @@
         <Label Content="Min Depth" HorizontalAlignment="Left" Margin="731,244,0,0" VerticalAlignment="Top"/>
         <Label Content="Frame Size" HorizontalAlignment="Left" Margin="730,306,0,0" VerticalAlignment="Top"/>
         <CheckBox x:Name="IsFrameEnabledCheckBox" Content="Enable Frame" HorizontalAlignment="Left" Margin="731,344,0,0" VerticalAlignment="Top" IsChecked="True" />
-        <TextBox x:Name="FileNameTextBox" HorizontalAlignment="Left" Height="23" Margin="801,142,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Text="table_pen_0.txt"/>
-        <Label Content="File Name" HorizontalAlignment="Left" Margin="731,139,0,0" VerticalAlignment="Top"/>
-        <Button x:Name="ReadFileButton" Content="Read File" HorizontalAlignment="Left" Margin="847,170,0,0" VerticalAlignment="Top" Width="75" Click="ReadFileButton_Click"/>
+        <TextBox x:Name="FileNameTextBox" HorizontalAlignment="Left" Height="23" Margin="801,171,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Text="table_pen_0.txt"/>
+        <Label Content="File Name" HorizontalAlignment="Left" Margin="731,168,0,0" VerticalAlignment="Top"/>
+        <Button x:Name="ReadFileButton" Content="Read File" HorizontalAlignment="Left" Margin="847,199,0,0" VerticalAlignment="Top" Width="75" Click="ReadFileButton_Click"/>
         <Button x:Name="SaveFrameButton" Content="Save Frame" HorizontalAlignment="Left" Margin="836,58,0,0" VerticalAlignment="Top" Width="86" IsEnabled="True" Click="SaveFrameButton_Click"/>
         <Label Content="Object" HorizontalAlignment="Left" Margin="749,97,0,0" VerticalAlignment="Top"/>
         <Label x:Name="ObjectLabel" Content="Unknown" HorizontalAlignment="Left" Margin="794,97,0,0" VerticalAlignment="Top"/>
+        <Label Content="Vector" HorizontalAlignment="Left" Margin="749,123,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="VectorLabel" Content="Unknown" HorizontalAlignment="Left" Margin="794,123,0,0" VerticalAlignment="Top"/>
 
     </Grid>
 </Window>

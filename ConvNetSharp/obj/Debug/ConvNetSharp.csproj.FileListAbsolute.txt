@@ -1,0 +1,14 @@
+D:\ЗАГРУЗКИ\Classification\ConvNetSharp\obj\Debug\ConvNetSharp.csprojResolveAssemblyReference.cache
+C:\Users\Михаил\projects\Classification\ConvNetSharp\obj\Debug\ConvNetSharp.csprojResolveAssemblyReference.cache
+C:\Users\Михаил\projects\Classification\ConvNetSharp\bin\Debug\ConvNetSharp.dll.config
+C:\Users\Михаил\projects\Classification\ConvNetSharp\bin\Debug\ConvNetSharp.dll
+C:\Users\Михаил\projects\Classification\ConvNetSharp\bin\Debug\ConvNetSharp.pdb
+C:\Users\Михаил\projects\Classification\ConvNetSharp\bin\Debug\mscorlib.dll
+C:\Users\Михаил\projects\Classification\ConvNetSharp\bin\Debug\ru\mscorlib.resources.dll
+C:\Users\Михаил\projects\Classification\ConvNetSharp\bin\Debug\normidna.nlp
+C:\Users\Михаил\projects\Classification\ConvNetSharp\bin\Debug\normnfc.nlp
+C:\Users\Михаил\projects\Classification\ConvNetSharp\bin\Debug\normnfd.nlp
+C:\Users\Михаил\projects\Classification\ConvNetSharp\bin\Debug\normnfkc.nlp
+C:\Users\Михаил\projects\Classification\ConvNetSharp\bin\Debug\normnfkd.nlp
+C:\Users\Михаил\projects\Classification\ConvNetSharp\obj\Debug\ConvNetSharp.dll
+C:\Users\Михаил\projects\Classification\ConvNetSharp\obj\Debug\ConvNetSharp.pdb
